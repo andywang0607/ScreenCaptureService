@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include "util/screencapture/ScreenCapture.h"
+#include "opencv2/opencv.hpp"
 
 int main()
 {
@@ -17,12 +18,13 @@ int main()
         auto ret = capture.captureScreenRect(0, 0, width, height);
         std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
         std::cout << "captureScreenRect time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count() << "\n";
-
+		std::cout << "ret size: " << ret.size() << "\n";
         if (ret.empty()) {
             continue;
         }
-
-        cv::imshow("Screen", ret);
+		auto mat = cv::imdecode(ret, cv::IMREAD_COLOR);
+		std::cout<< "channels: " << mat.channels() << "\n";
+        cv::imshow("Screen", mat);
         if (cv::waitKey(1) == 'q') {
             break;
         }
