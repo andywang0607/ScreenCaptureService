@@ -4,6 +4,10 @@ include (externalProjectWrapper)
 add_external_project(json_external json "JSON_BuildTests=OFF")
 add_external_target(nlohmann_json json/include json OBJECT json_external)
 
+# nlohmann_json
+add_external_project(base64_external base64)
+add_external_target(base64 base64 base64 STATIC base64_external)
+
 # zmq
 add_definitions(-DNOMINMAX)
 set(ZEROMQ_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libzmq/include)

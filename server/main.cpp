@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include "ScreenCapture.h"
+#include "base64.h"
 #include "opencv2/opencv.hpp"
 
 int main()
@@ -22,7 +23,9 @@ int main()
         if (ret.empty()) {
             continue;
         }
-		auto mat = cv::imdecode(ret, cv::IMREAD_COLOR);
+        auto base64Str = base64_encode(ret.data(), ret.size());
+        auto decodeStr = base64_decode(base64Str);
+		auto mat = cv::imdecode(std::vector<unsigned char>(decodeStr.begin(), decodeStr.end()), cv::IMREAD_COLOR);
 		std::cout<< "channels: " << mat.channels() << "\n";
         cv::imshow("Screen", mat);
         if (cv::waitKey(1) == 'q') {
