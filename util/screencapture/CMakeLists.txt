@@ -15,6 +15,8 @@ if( OpenCV_FOUND )
     target_link_libraries(screencapture PUBLIC ${OpenCV_LIBS} )
 endif()
 
+target_include_directories(screencapture INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+
 # generate export header 
 include(GenerateExportHeader)
 generate_export_header(screencapture 

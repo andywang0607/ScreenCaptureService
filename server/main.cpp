@@ -2,7 +2,7 @@
 #include <string>
 #include <chrono>
 
-#include "util/screencapture/ScreenCapture.h"
+#include "ScreenCapture.h"
 #include "opencv2/opencv.hpp"
 
 int main()

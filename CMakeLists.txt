@@ -14,11 +14,5 @@ find_package(OpenCV CONFIG REQUIRED)
 
 add_subdirectory(thirdparty)
 add_subdirectory(util)
+add_subdirectory(server)
 
-add_executable(ScreenCaptureService main.cpp)
-
-target_link_libraries(ScreenCaptureService
-	screencapture)
-
-install(TARGETS ScreenCaptureService
-        RUNTIME DESTINATION ${ScreenCaptureService_INSTALL_DIR}/bin)
