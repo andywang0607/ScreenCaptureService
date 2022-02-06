@@ -1,3 +1,10 @@
 [submodule "thirdparty/json"]
 	path = thirdparty/json
 	url = https://github.com/nlohmann/json.git
+[submodule "thirdparty/zmqpp"]
+	path = thirdparty/zmqpp
+	url = https://github.com/zeromq/zmqpp.git
+[submodule "thirdparty/libzmq"]
+	path = thirdparty/libzmq
+	url = https://github.com/zeromq/libzmq.git
+	branch = v4.2.3
