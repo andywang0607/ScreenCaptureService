@@ -14,6 +14,9 @@ set(ZEROMQ_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libzmq/include)
 set(ZEROMQ_LIBRARY_SHARED ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/libzmq-mt-gd-4_2_3.lib)
 set(ZEROMQ_LIBRARY_STATIC ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/libzmq-static.lib)
 set(ZEROMQ_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt)
+
+execute_process(COMMAND apply-zmqpp-patch.bat
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/patch)
 add_subdirectory(zmqpp)
 
 add_library(zmqppHeader INTERFACE)
