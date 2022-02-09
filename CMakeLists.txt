@@ -12,7 +12,12 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR})
 set(OpenCV_DIR ${VCPKG_ROOT}installed/x64-windows/share/opencv/)
 find_package(OpenCV CONFIG REQUIRED)
 
-add_subdirectory(thirdparty)
-add_subdirectory(util)
-add_subdirectory(server)
-
+set(targets
+    thirdparty
+    util
+    server
+    client
+)
+foreach(target ${targets})
+    add_subdirectory(${target})
+endforeach(target)
