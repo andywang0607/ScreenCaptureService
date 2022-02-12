@@ -1,7 +1,8 @@
-#ifndef __SCREENCAPTUREAPI_H__
-#define __SCREENCAPTUREAPI_H__
+#ifndef __SCREENCAPTUREAPIIMPL_H__
+#define __SCREENCAPTUREAPIIMPL_H__
 
 #include "MessageHelper.hpp"
+#include "include/ScreenCaptureApi.h"
 
 #include <vector>
 #include <thread>
@@ -12,17 +13,22 @@
 #include <zmqpp/zmqpp.hpp>
 #include <zmqpp/reactor.hpp>
 
-class ScreenCaptureApi
+class ScreenCaptureApiImpl : public ScreenCaptureApi
 {
 public:
-    ScreenCaptureApi();
-    ~ScreenCaptureApi();
+    ScreenCaptureApiImpl(ScreenCaptureSpi &spi);
+    ~ScreenCaptureApiImpl() override;
 
-    int connect();
+    int connect() override;
+    int queryScreenImage() override;
+    void disconnect() override;
 
 private:
     void handleMessage(zmqpp::socket &socket);
     void addSendQueue(nlohmann::json &msg);
+
+    void start();
+    void stop();
 
     zmqpp::context context_;
     zmqpp::socket requestSocket_;
@@ -31,6 +37,7 @@ private:
     std::atomic_bool isStart_;
     std::vector<std::thread> threads_;
     std::queue<nlohmann::json> sendQueue_;
+    ScreenCaptureSpi &spi_;
 };
 
-#endif // __SCREENCAPTUREAPI_H__
+#endif // __SCREENCAPTUREAPIIMPL_H__
