@@ -9,10 +9,10 @@ add_library(screencapture STATIC
 
 if( OpenCV_FOUND )
     # Additional Include Directories
-    target_include_directories(screencapture PUBLIC ${OpenCV_INCLUDE_DIRS} )
+    target_include_directories(screencapture PUBLIC ${OpenCV_INCLUDE_DIRS})
 
     # Additional Library Directories
-    target_link_libraries(screencapture PUBLIC ${OpenCV_LIBS} )
+    target_link_libraries(screencapture PUBLIC ${OpenCV_LIBS})
 endif()
 
 target_include_directories(screencapture INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
