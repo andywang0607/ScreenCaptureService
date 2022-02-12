@@ -1,5 +1,6 @@
 #include "ScreenCaptureServer.hpp"
 #include "MessageHelper.hpp"
+#include "ScreenCapture.h"
 
 #include <atomic>
 #include <iostream>
@@ -7,6 +8,7 @@
 
 #include <zmqpp/proxy.hpp>
 #include <zmqpp/zmqpp.hpp>
+#include <base64.h>
 
 struct ScreenCaptureServer::impl
 {
@@ -29,6 +31,8 @@ struct ScreenCaptureServer::impl
         }
         serviceThread_.clear();
     }
+
+    ScreenCapture screenCapture_;
 
     std::atomic_bool isStart_;
     std::vector<std::thread> serviceThread_;
@@ -70,11 +74,18 @@ void ScreenCaptureServer::startService()
 
             MessageHelper msgResponse;
             msgResponse.setConnectToken(msgRequest.getConnectToken());
-            msgResponse.set("test", 123);
+            msgResponse.set("action", msgRequest.get("action"));
+
+            auto &[width, height] = pimpl_->screenCapture_.getCurrentScreenSize();
+            auto imgData = pimpl_->screenCapture_.captureScreenRect(0, 0, width, height);
+            auto imgDataStr = base64_encode(imgData.data(), imgData.size());
+
+            msgResponse.set("imgWidth", width);
+            msgResponse.set("imgHeight", height);
+            msgResponse.set("imgData", imgDataStr);
 
             zmqpp::message response = msgResponse.toMessage();
             pimpl_->serviceSocket_.send(response);
-            std::cout << " reply message: " << msgResponse.toString() << "\n";
         }
         std::cout << "end service Thread \n";
     });
