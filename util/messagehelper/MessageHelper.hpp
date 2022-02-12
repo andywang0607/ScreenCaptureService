@@ -57,6 +57,11 @@ public:
         return connectToken_;
     }
 
+    void setTopic(const std::string &topic)
+    {
+        topic_ = topic;
+    };
+
     template <typename T>
     void set(const std::string &key, const T &value)
     {
@@ -78,6 +83,7 @@ public:
     {
         std::string ret;
         ret.append("connectToken: '" + connectToken_ + "',");
+        ret.append("topic: '" + topic_ + "',");
         ret.append("body: '" + body_.dump() + "'");
 
         return ret;
@@ -89,6 +95,8 @@ public:
 
         if (!connectToken_.empty()) {
             ret.push_back(connectToken_);
+        } else if (!topic_.empty()) {
+            ret.push_back(topic_);
         }
 
         ret.push_back(body_.dump());
@@ -98,6 +106,7 @@ public:
 
 private:
     std::string connectToken_;
+    std::string topic_;
     nlohmann::json body_;
 };
 #endif

@@ -16,12 +16,16 @@ ScreenCaptureApi* ScreenCaptureApi::create(ScreenCaptureSpi &spi)
 
 ScreenCaptureApiImpl::ScreenCaptureApiImpl(ScreenCaptureSpi &spi)
     : requestSocket_(context_, zmqpp::socket_type::dealer)
+    , subscribeSocket_(context_, zmqpp::socket_type::subscribe)
     , isStart_(true)
     , spi_(spi)
 {
     reactor_.add(requestSocket_, [&,this]() {
-        std::cout << "reactor lambda \n";
         handleMessage(requestSocket_);
+    });
+
+    reactor_.add(subscribeSocket_, [this]() {
+        handleMessage(subscribeSocket_);
     });
     
     std::cout << "ScreenCaptureServer cunstruct success \n";
@@ -32,7 +36,7 @@ ScreenCaptureApiImpl::~ScreenCaptureApiImpl()
     stop();
 }
 
-int ScreenCaptureApiImpl::connect()
+int ScreenCaptureApiImpl::connect(const char *ip, int port)
 {
     start();
     
@@ -41,7 +45,7 @@ int ScreenCaptureApiImpl::connect()
     requestSocket_.set(zmqpp::socket_option::heartbeat_interval, 120000);
     requestSocket_.set(zmqpp::socket_option::heartbeat_timeout, 240000);
 
-    std::string requestEndpoint = "tcp://192.168.2.88:8080";
+    std::string requestEndpoint = "tcp://" + std::string(ip) + ":" + std::to_string(port);
     requestSocket_.connect(requestEndpoint);
 
     MessageHelper request;
@@ -54,13 +58,28 @@ int ScreenCaptureApiImpl::connect()
     return 0;
 }
 
-int ScreenCaptureApiImpl::queryScreenImage() 
+int ScreenCaptureApiImpl::startQueryScreenImage() 
 {
+    subscribeSocket(topic_);
+    
     MessageHelper request;
     
-    request.set("action", "queryScreenImage");
+    request.set("action", "startQueryScreenImage");
     request.set("width", 1900);
     request.set("height", 1080);
+    addSendQueue(request.getBody());
+
+    std::cout << " request message: " << request.toString() << "\n";
+    return 0;
+}
+
+int ScreenCaptureApiImpl::stopQueryScreenImage() 
+{
+    unsubSubscribeSocket(topic_);
+
+    MessageHelper request;
+    
+    request.set("action", "stopQueryScreenImage");
     addSendQueue(request.getBody());
 
     std::cout << " request message: " << request.toString() << "\n";
@@ -78,7 +97,10 @@ void ScreenCaptureApiImpl::disconnect()
 
     stop();
     requestSocket_.close();
+    subscribeSocket_.close();
     context_.terminate();
+
+    spi_.onDisConnectRspRtn("disconnect success");
 }
 
 void ScreenCaptureApiImpl::handleMessage(zmqpp::socket &socket)
@@ -94,15 +116,20 @@ void ScreenCaptureApiImpl::handleMessage(zmqpp::socket &socket)
     if(action == "connect") {
         auto width = msgReceive.get<int>("imgWidth", -1);
         auto height = msgReceive.get<int>("imgHeight", -1);
+        auto topic = msgReceive.get("topic");
+        topic_ = topic;
 
-        spi_.onConnectReturn(width, height);
-    } else if(action == "disconnect") {
-        spi_.onDisConnectReturn("disconnect success");
-    } else if(action == "queryScreenImage") {
+        connectSubscribeSocket("tcp://192.168.2.88:8081");
+        spi_.onConnectRspRtn(width, height);
+    } else if(action == "startQueryScreenImage") {
+        spi_.onStartQueryScreenImageRspRtn(msgReceive.get("message").c_str());
+    } else if(action == "stopQueryScreenImage") {
+        spi_.onStopQueryScreenImageRspRtn(msgReceive.get("message").c_str());
+    } else if(action == "imageRtn") {
         auto imgDataReceive = msgReceive.get("imgData");
         auto imgData = base64_decode(imgDataReceive);
 
-        spi_.onImgReturn((unsigned char *)imgData.c_str(), imgData.size());
+        spi_.onImageRtn((unsigned char *)imgData.c_str(), imgData.size());
     }
 
     std::cout << "handleMessage finish \n";
@@ -111,6 +138,21 @@ void ScreenCaptureApiImpl::handleMessage(zmqpp::socket &socket)
 void ScreenCaptureApiImpl::addSendQueue(nlohmann::json &msg)
 {
     sendQueue_.push(msg);
+}
+
+void ScreenCaptureApiImpl::connectSubscribeSocket(const std::string &address) 
+{
+    subscribeSocket_.connect(address);
+}
+
+void ScreenCaptureApiImpl::subscribeSocket(const std::string &topic) 
+{
+    subscribeSocket_.subscribe(topic);
+}
+
+void ScreenCaptureApiImpl::unsubSubscribeSocket(const std::string &topic) 
+{
+    subscribeSocket_.unsubscribe(topic);
 }
 
 void ScreenCaptureApiImpl::start()

@@ -3,9 +3,12 @@
 
 struct ScreenCaptureSpi
 {
-    virtual void onConnectReturn(int imgWidth, int imgHeight){};
-    virtual void onImgReturn(unsigned char *data, int length){};
-    virtual void onDisConnectReturn(char *msg){};
+    virtual void onConnectRspRtn(int imgWidth, int imgHeight){};
+    virtual void onStartQueryScreenImageRspRtn(const char *msg){};
+    virtual void onStopQueryScreenImageRspRtn(const char *msg){};
+    virtual void onDisConnectRspRtn(const char *msg){};
+
+    virtual void onImageRtn(unsigned char *data, int length){};
 
     virtual ~ScreenCaptureSpi(){};
 };
@@ -15,8 +18,9 @@ struct ScreenCaptureApi
     static ScreenCaptureApi *create(ScreenCaptureSpi &spi);
     virtual ~ScreenCaptureApi(){};
 
-    virtual int connect() = 0;
-    virtual int queryScreenImage() = 0;
+    virtual int connect(const char *ip, int port) = 0;
+    virtual int startQueryScreenImage() = 0;
+    virtual int stopQueryScreenImage() = 0;
     virtual void disconnect() = 0;
 };
 
