@@ -1,10 +1,7 @@
-#include <zmqpp/zmqpp.hpp>
-#include <zmqpp/reactor.hpp>
 #include <opencv2/opencv.hpp>
-#include "threadsafe_queue.hpp"
 
+#include "threadsafe_queue.hpp"
 #include "include/ScreenCaptureApi.h"
-#include "src/ScreenCaptureApiImpl.h"
 
 #include <thread>
 #include <chrono>
@@ -42,7 +39,6 @@ class MySpi : public ScreenCaptureSpi
         std::cout << "onStopQueryScreenImageRspRtn\n"
                   << "msg: " << msg << "\n";
     }
-
     void onDisConnectRspRtn(const char *msg) override
     {
         std::cout << "onDisConnectReturn\n"
