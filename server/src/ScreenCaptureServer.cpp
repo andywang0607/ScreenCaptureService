@@ -1,6 +1,7 @@
 #include "ScreenCaptureServer.hpp"
 #include "MessageHelper.hpp"
 #include "Router.hpp"
+#include "ServerConfig.hpp"
 
 #include <atomic>
 #include <iostream>
@@ -63,8 +64,10 @@ struct ScreenCaptureServer::impl
 
 ScreenCaptureServer::ScreenCaptureServer(): pimpl_(std::make_unique<impl>())
 {
-    std::string myIp = "192.168.2.88";
-    std::string myPort = "8080";
+    ServerConfig::getInstance().updateConfig();
+
+    std::string myIp = ServerConfig::getInstance().get("serverIp");
+    std::string myPort = std::to_string(ServerConfig::getInstance().get<int>("servicePort", -1));
     std::string serviceAddress = "tcp://" + myIp + ":" + myPort;
 
     std::cout << "serviceAddress: " << serviceAddress << "\n";

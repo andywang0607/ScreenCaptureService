@@ -1,0 +1,5 @@
+{
+    "serverIp": "127.0.0.1",
+    "servicePort": 8080,
+    "publishPort": 8081
+}

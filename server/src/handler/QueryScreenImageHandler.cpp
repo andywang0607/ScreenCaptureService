@@ -1,5 +1,6 @@
 #include "QueryScreenImageHandler.h"
 #include "ScreenCapture.h"
+#include "ServerConfig.hpp"
 
 #include <thread>
 #include <vector>
@@ -18,8 +19,8 @@ struct QueryScreenImageHandler::impl
         , isPublishStart_(false)
         , subscribeClientNum_(0)
     {
-        std::string myIp = "192.168.2.88";
-        std::string publishPort = "8081";
+        std::string myIp = ServerConfig::getInstance().get("serverIp");
+        std::string publishPort = std::to_string(ServerConfig::getInstance().get<int>("publishPort", -1));
         std::string publicAddress = "tcp://" + myIp + ":" + publishPort;
 
         publishSocket_.set(zmqpp::socket_option::heartbeat_interval, 120000);

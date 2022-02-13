@@ -52,7 +52,7 @@ int main()
 {
     api = ScreenCaptureApi::create(mySpi);
     
-    api->connect("192.168.2.88", 8080);
+    api->connect("127.0.0.1", 8080);
     api->startQueryScreenImage();
 
     while (true) {

@@ -21,3 +21,6 @@ target_include_directories(ScreenCaptureServer PUBLIC
 
 install(TARGETS ScreenCaptureServer
         RUNTIME DESTINATION ${ScreenCaptureService_INSTALL_DIR}/bin)
+
+install(FILES config/server_config.json
+        DESTINATION ${ScreenCaptureService_INSTALL_DIR}/bin)

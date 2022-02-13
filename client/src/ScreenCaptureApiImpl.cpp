@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include <string>
 #include <zmqpp/message.hpp>
 #include <zmqpp/reactor.hpp>
 #include <zmqpp/socket_options.hpp>
@@ -51,7 +52,8 @@ int ScreenCaptureApiImpl::connect(const char *ip, int port)
 
     MessageHelper request;
     request.set("action", "connect");
-    request.set("IP", "127.0.0.1");
+    request.set("ip", std::string(ip));
+    request.set("port", std::to_string(port));
     addSendQueue(request.getBody());
 
     std::cout << " request message: " << request.toString() << "\n";

@@ -3,7 +3,6 @@
 
 #include "src/ScreenCaptureServer.hpp"
 
-
 int main()
 {
     ScreenCaptureServer server;
