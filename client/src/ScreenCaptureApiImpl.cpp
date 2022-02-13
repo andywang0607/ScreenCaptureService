@@ -1,4 +1,5 @@
 #include "ScreenCaptureApiImpl.h"
+#include "HandlerManager.hpp"
 
 #include <iostream>
 
@@ -103,34 +104,18 @@ void ScreenCaptureApiImpl::disconnect()
     spi_.onDisConnectRspRtn("disconnect success");
 }
 
+void ScreenCaptureApiImpl::setTopic(const std::string &topic) 
+{
+    topic_ = topic;
+}
+
 void ScreenCaptureApiImpl::handleMessage(zmqpp::socket &socket)
 {
     zmqpp::message receive;
     socket.receive(receive);
 
     MessageHelper msgReceive(receive);
-    
-    auto action = msgReceive.get("action");
-    std::cout << "action: " << action << "\n";
-
-    if(action == "connect") {
-        auto width = msgReceive.get<int>("imgWidth", -1);
-        auto height = msgReceive.get<int>("imgHeight", -1);
-        auto topic = msgReceive.get("topic");
-        topic_ = topic;
-
-        connectSubscribeSocket("tcp://192.168.2.88:8081");
-        spi_.onConnectRspRtn(width, height);
-    } else if(action == "startQueryScreenImage") {
-        spi_.onStartQueryScreenImageRspRtn(msgReceive.get("message").c_str());
-    } else if(action == "stopQueryScreenImage") {
-        spi_.onStopQueryScreenImageRspRtn(msgReceive.get("message").c_str());
-    } else if(action == "imageRtn") {
-        auto imgDataReceive = msgReceive.get("imgData");
-        auto imgData = base64_decode(imgDataReceive);
-
-        spi_.onImageRtn((unsigned char *)imgData.c_str(), imgData.size());
-    }
+    HandlerManager::handle(msgReceive, &spi_, this);
 
     std::cout << "handleMessage finish \n";
 }

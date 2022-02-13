@@ -25,13 +25,14 @@ public:
     int stopQueryScreenImage() override;
     void disconnect() override;
 
-private:
-    void handleMessage(zmqpp::socket &socket);
-    void addSendQueue(nlohmann::json &msg);
-
     void connectSubscribeSocket(const std::string &address);
     void subscribeSocket(const std::string &topic);
     void unsubSubscribeSocket(const std::string &topic);
+    
+    void setTopic(const std::string &topic);
+private:
+    void handleMessage(zmqpp::socket &socket);
+    void addSendQueue(nlohmann::json &msg);
 
     void start();
     void stop();

@@ -2,6 +2,13 @@ add_library(screencaptureapi SHARED
     include/ScreenCaptureApi.h
     src/ScreenCaptureApiImpl.cpp
     src/ScreenCaptureApiImpl.h
+    src/handler/Handler.h
+    src/handler/ConnectResultHandler.cpp
+    src/handler/ConnectResultHandler.h
+    src/handler/QueryScreenImageResultHandler.cpp
+    src/handler/QueryScreenImageResultHandler.h
+    src/handler/SubscriptionHandler.cpp
+    src/handler/SubscriptionHandler.h
 )
 
 target_link_libraries(screencaptureapi
@@ -12,7 +19,8 @@ target_link_libraries(screencaptureapi
     nlohmann_json)
 
 target_include_directories(screencaptureapi PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR})
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # generate export header 
 include(GenerateExportHeader)
