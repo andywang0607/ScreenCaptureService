@@ -2,7 +2,6 @@
 #define __SCREENCAPTURESERVER_H__
 
 #include <memory>
-#include <string>
 
 class ScreenCaptureServer
 {
