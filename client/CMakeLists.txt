@@ -14,6 +14,7 @@ add_library(screencaptureapi SHARED
 target_link_libraries(screencaptureapi
     messagehelper 
     base64
+    md5
     zmqpp-static 
     zmqppHeader 
     nlohmann_json)

@@ -33,6 +33,7 @@ public:
 private:
     void handleMessage(zmqpp::socket &socket);
     void addSendQueue(nlohmann::json &msg);
+    std::string genConnectToken();
 
     void start();
     void stop();

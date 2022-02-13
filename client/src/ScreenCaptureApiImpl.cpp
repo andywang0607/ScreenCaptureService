@@ -2,13 +2,15 @@
 #include "HandlerManager.hpp"
 
 #include <iostream>
-
 #include <string>
+#include <chrono>
+
 #include <zmqpp/message.hpp>
 #include <zmqpp/reactor.hpp>
 #include <zmqpp/socket_options.hpp>
 #include <zmqpp/socket_types.hpp>
 #include <base64.h>
+#include <md5.h>
 
 
 ScreenCaptureApi* ScreenCaptureApi::create(ScreenCaptureSpi &spi)
@@ -42,7 +44,7 @@ int ScreenCaptureApiImpl::connect(const char *ip, int port)
 {
     start();
     
-    std::string token = "hafjkdasfblasjkfbasjlhfgjkasdfbal";
+    std::string token = genConnectToken();
     requestSocket_.set(zmqpp::socket_option::identity, token);
     requestSocket_.set(zmqpp::socket_option::heartbeat_interval, 120000);
     requestSocket_.set(zmqpp::socket_option::heartbeat_timeout, 240000);
@@ -125,6 +127,14 @@ void ScreenCaptureApiImpl::handleMessage(zmqpp::socket &socket)
 void ScreenCaptureApiImpl::addSendQueue(nlohmann::json &msg)
 {
     sendQueue_.push(msg);
+}
+
+std::string ScreenCaptureApiImpl::genConnectToken() 
+{
+    using namespace std::chrono;
+    std::string currentTime = std::to_string(duration_cast<microseconds>(system_clock::now().time_since_epoch()).count());
+    
+    return md5(currentTime);
 }
 
 void ScreenCaptureApiImpl::connectSubscribeSocket(const std::string &address) 

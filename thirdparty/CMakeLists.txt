@@ -4,9 +4,13 @@ include (externalProjectWrapper)
 add_external_project(json_external json "JSON_BuildTests=OFF")
 add_external_target(nlohmann_json json/include json OBJECT json_external)
 
-# nlohmann_json
+# base64
 add_external_project(base64_external base64)
 add_external_target(base64 base64 base64 STATIC base64_external)
+
+# md5
+add_external_project(md5_external md5)
+add_external_target(md5 md5 md5 STATIC md5_external)
 
 # zmq
 add_definitions(-DNOMINMAX)
