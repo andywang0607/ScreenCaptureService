@@ -5,5 +5,3 @@ build/
 bin/
 lib/
 include/
-
-util/screencapture/screencapture_export.h

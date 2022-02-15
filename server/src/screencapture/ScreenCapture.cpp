@@ -1,5 +1,4 @@
 #include <atlimage.h>
-#include <tuple>
 
 #include "ScreenCapture.h"
 #include "opencv2/opencv.hpp"

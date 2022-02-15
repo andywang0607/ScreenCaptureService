@@ -1,6 +1,5 @@
 
 set(targets
-    screencapture
     messagehelper
     threadsafequeue
 )
