@@ -11,18 +11,11 @@ add_executable(ScreenCaptureServer
     main.cpp
 )
 
-if(OpenCV_FOUND)
-    # Additional Include Directories
-    target_include_directories(ScreenCaptureServer PUBLIC ${OpenCV_INCLUDE_DIRS})
-
-    # Additional Library Directories
-    target_link_libraries(ScreenCaptureServer PUBLIC ${OpenCV_LIBS})
-endif()
-
 target_link_libraries(ScreenCaptureServer PUBLIC
     base64
     messagehelper 
-    zmqpp-static zmqppHeader nlohmann_json)
+    zmqpp-static zmqppHeader nlohmann_json
+    opencv)
 
 target_include_directories(ScreenCaptureServer PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/src

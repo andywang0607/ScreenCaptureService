@@ -25,3 +25,17 @@ add_subdirectory(zmqpp)
 
 add_library(zmqppHeader INTERFACE)
 target_include_directories(zmqppHeader SYSTEM INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/zmqpp/src ${CMAKE_CURRENT_BINARY_DIR}/zmqpp ${CMAKE_CURRENT_SOURCE_DIR}/libzmq/include)
+
+# opencv
+add_library(opencv INTERFACE)
+target_include_directories(opencv INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/opencv/include)
+
+if(NOT ${CMAKE_BUILD_TYPE} MATCHES "Debug")
+        target_link_libraries(opencv INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/opencv/lib/opencv_world349.lib)
+        install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/opencv/bin/opencv_world349.dll
+                DESTINATION ${ScreenCaptureService_INSTALL_DIR}/bin)
+else()
+        target_link_libraries(opencv INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/opencv/lib/opencv_world349d.lib)
+        install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/opencv/bin/opencv_world349d.dll
+                DESTINATION ${ScreenCaptureService_INSTALL_DIR}/bin)
+endif()
