@@ -16,7 +16,6 @@ target_link_libraries(screencaptureapi
     base64
     md5
     zmqpp-static 
-    zmqppHeader 
     nlohmann_json)
 
 target_include_directories(screencaptureapi PUBLIC 

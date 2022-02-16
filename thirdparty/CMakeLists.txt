@@ -13,18 +13,35 @@ add_external_project(md5_external md5)
 add_external_target(md5 md5 md5 STATIC md5_external)
 
 # zmq
+add_external_project(zmq_external libzmq "BUILD_TESTS=off")
+add_external_target(libzmq-static libzmq/include libzmq/lib STATIC zmq_external)
+add_external_target(libzmq libzmq/include libzmq/lib SHARED zmq_external)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/libzmq/lib/ DESTINATION lib
+        FILES_MATCHING
+        PATTERN "libzmq*")
+
 add_definitions(-DNOMINMAX)
 set(ZEROMQ_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/libzmq/include)
-set(ZEROMQ_LIBRARY_SHARED ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/libzmq-mt-gd-4_2_3.lib)
-set(ZEROMQ_LIBRARY_STATIC ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/libzmq-static.lib)
-set(ZEROMQ_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/prebuilt)
+if(NOT ${CMAKE_BUILD_TYPE} MATCHES "Debug")
+        set(ZEROMQ_LIBRARY_SHARED ${CMAKE_CURRENT_BINARY_DIR}/libzmq/lib/${CMAKE_BUILD_TYPE}/libzmq-v141-mt-4_3_2.lib)
+        set(ZEROMQ_LIBRARY_STATIC ${CMAKE_CURRENT_BINARY_DIR}/libzmq/lib/${CMAKE_BUILD_TYPE}/libzmq-v141-mt-s-4_3_2.lib)
+else()
+        set(ZEROMQ_LIBRARY_SHARED ${CMAKE_CURRENT_BINARY_DIR}/libzmq/lib/${CMAKE_BUILD_TYPE}/libzmq-v141-mt-gd-4_3_2.lib)
+        set(ZEROMQ_LIBRARY_STATIC ${CMAKE_CURRENT_BINARY_DIR}/libzmq/lib/${CMAKE_BUILD_TYPE}/libzmq-v141-mt-sgd-4_3_2.lib)
+endif()
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/zmqpp/ DESTINATION lib
+        FILES_MATCHING
+        PATTERN "libzmqpp*")
 
+# zmqpp
 execute_process(COMMAND apply-zmqpp-patch.bat
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/patch)
 add_subdirectory(zmqpp)
-
-add_library(zmqppHeader INTERFACE)
-target_include_directories(zmqppHeader SYSTEM INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/zmqpp/src ${CMAKE_CURRENT_BINARY_DIR}/zmqpp ${CMAKE_CURRENT_SOURCE_DIR}/libzmq/include)
+target_include_directories(zmqpp-static PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/zmqpp/src 
+        ${CMAKE_CURRENT_BINARY_DIR}/zmqpp 
+        ${CMAKE_CURRENT_SOURCE_DIR}/libzmq/include
+)
 
 # opencv
 add_library(opencv INTERFACE)

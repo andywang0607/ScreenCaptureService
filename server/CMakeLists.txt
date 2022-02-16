@@ -14,7 +14,7 @@ add_executable(ScreenCaptureServer
 target_link_libraries(ScreenCaptureServer PUBLIC
     base64
     messagehelper 
-    zmqpp-static zmqppHeader nlohmann_json
+    zmqpp-static nlohmann_json
     opencv)
 
 target_include_directories(ScreenCaptureServer PUBLIC 
