@@ -1,8 +1,4 @@
-
-set(targets
-    messagehelper
-    threadsafequeue
-)
+set(targets messagehelper threadsafequeue)
 foreach(target ${targets})
-    add_subdirectory(${target})
+  add_subdirectory(${target})
 endforeach(target)
