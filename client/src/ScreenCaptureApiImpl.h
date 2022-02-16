@@ -3,11 +3,11 @@
 
 #include "MessageHelper.hpp"
 #include "include/ScreenCaptureApi.h"
+#include "threadsafe_queue.hpp"
 
 #include <vector>
 #include <thread>
 #include <atomic>
-#include <queue>
 #include <string>
 
 #include <nlohmann/json.hpp>
@@ -28,8 +28,9 @@ public:
     void connectSubscribeSocket(const std::string &address);
     void subscribeSocket(const std::string &topic);
     void unsubSubscribeSocket(const std::string &topic);
-    
+
     void setTopic(const std::string &topic);
+
 private:
     void handleMessage(zmqpp::socket &socket);
     void addSendQueue(nlohmann::json &msg);
@@ -46,7 +47,7 @@ private:
     std::atomic_bool isStart_;
     std::vector<std::thread> threads_;
     std::string topic_;
-    std::queue<nlohmann::json> sendQueue_;
+    threadsafe_queue<nlohmann::json> sendQueue_;
     ScreenCaptureSpi &spi_;
 };
 

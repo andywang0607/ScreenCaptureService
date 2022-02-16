@@ -11,8 +11,14 @@ add_library(
   src/handler/SubscriptionHandler.cpp
   src/handler/SubscriptionHandler.h)
 
-target_link_libraries(screencaptureapi messagehelper base64 md5 zmqpp-static
-                      nlohmann_json)
+target_link_libraries(
+  screencaptureapi
+  messagehelper
+  base64
+  md5
+  zmqpp-static
+  nlohmann_json
+  threadsafeQueue)
 
 target_include_directories(
   screencaptureapi PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}

@@ -1,19 +1,19 @@
 #include "ScreenCaptureApiImpl.h"
 #include "HandlerManager.hpp"
 
+#include <chrono>
 #include <iostream>
 #include <string>
-#include <chrono>
 
+#include <base64.h>
+#include <md5.h>
 #include <zmqpp/message.hpp>
 #include <zmqpp/reactor.hpp>
 #include <zmqpp/socket_options.hpp>
 #include <zmqpp/socket_types.hpp>
-#include <base64.h>
-#include <md5.h>
 
 
-ScreenCaptureApi* ScreenCaptureApi::create(ScreenCaptureSpi &spi)
+ScreenCaptureApi *ScreenCaptureApi::create(ScreenCaptureSpi &spi)
 {
     return new ScreenCaptureApiImpl(spi);
 }
@@ -24,14 +24,14 @@ ScreenCaptureApiImpl::ScreenCaptureApiImpl(ScreenCaptureSpi &spi)
     , isStart_(true)
     , spi_(spi)
 {
-    reactor_.add(requestSocket_, [&,this]() {
+    reactor_.add(requestSocket_, [&, this]() {
         handleMessage(requestSocket_);
     });
 
     reactor_.add(subscribeSocket_, [this]() {
         handleMessage(subscribeSocket_);
     });
-    
+
     std::cout << "ScreenCaptureServer cunstruct success \n";
 }
 
@@ -43,7 +43,7 @@ ScreenCaptureApiImpl::~ScreenCaptureApiImpl()
 int ScreenCaptureApiImpl::connect(const char *ip, int port)
 {
     start();
-    
+
     std::string token = genConnectToken();
     requestSocket_.set(zmqpp::socket_option::identity, token);
     requestSocket_.set(zmqpp::socket_option::heartbeat_interval, 120000);
@@ -63,12 +63,12 @@ int ScreenCaptureApiImpl::connect(const char *ip, int port)
     return 0;
 }
 
-int ScreenCaptureApiImpl::startQueryScreenImage() 
+int ScreenCaptureApiImpl::startQueryScreenImage()
 {
     subscribeSocket(topic_);
-    
+
     MessageHelper request;
-    
+
     request.set("action", "startQueryScreenImage");
     request.set("width", 1900);
     request.set("height", 1080);
@@ -78,12 +78,12 @@ int ScreenCaptureApiImpl::startQueryScreenImage()
     return 0;
 }
 
-int ScreenCaptureApiImpl::stopQueryScreenImage() 
+int ScreenCaptureApiImpl::stopQueryScreenImage()
 {
     unsubSubscribeSocket(topic_);
 
     MessageHelper request;
-    
+
     request.set("action", "stopQueryScreenImage");
     addSendQueue(request.getBody());
 
@@ -91,10 +91,10 @@ int ScreenCaptureApiImpl::stopQueryScreenImage()
     return 0;
 }
 
-void ScreenCaptureApiImpl::disconnect() 
+void ScreenCaptureApiImpl::disconnect()
 {
     MessageHelper request;
-    
+
     request.set("action", "disconnect");
     addSendQueue(request.getBody());
 
@@ -108,7 +108,7 @@ void ScreenCaptureApiImpl::disconnect()
     spi_.onDisConnectRspRtn("disconnect success");
 }
 
-void ScreenCaptureApiImpl::setTopic(const std::string &topic) 
+void ScreenCaptureApiImpl::setTopic(const std::string &topic)
 {
     topic_ = topic;
 }
@@ -129,25 +129,25 @@ void ScreenCaptureApiImpl::addSendQueue(nlohmann::json &msg)
     sendQueue_.push(msg);
 }
 
-std::string ScreenCaptureApiImpl::genConnectToken() 
+std::string ScreenCaptureApiImpl::genConnectToken()
 {
     using namespace std::chrono;
     std::string currentTime = std::to_string(duration_cast<microseconds>(system_clock::now().time_since_epoch()).count());
-    
+
     return md5(currentTime);
 }
 
-void ScreenCaptureApiImpl::connectSubscribeSocket(const std::string &address) 
+void ScreenCaptureApiImpl::connectSubscribeSocket(const std::string &address)
 {
     subscribeSocket_.connect(address);
 }
 
-void ScreenCaptureApiImpl::subscribeSocket(const std::string &topic) 
+void ScreenCaptureApiImpl::subscribeSocket(const std::string &topic)
 {
     subscribeSocket_.subscribe(topic);
 }
 
-void ScreenCaptureApiImpl::unsubSubscribeSocket(const std::string &topic) 
+void ScreenCaptureApiImpl::unsubSubscribeSocket(const std::string &topic)
 {
     subscribeSocket_.unsubscribe(topic);
 }
@@ -158,9 +158,11 @@ void ScreenCaptureApiImpl::start()
         std::cout << "poll thread start \n";
         while (isStart_.load(std::memory_order_acquire)) {
             while (!sendQueue_.empty()) {
-                auto request = sendQueue_.front();
-                requestSocket_.send(request.dump());
-                sendQueue_.pop();
+                auto request = sendQueue_.try_pop();
+                if (!request) {
+                    continue;
+                }
+                requestSocket_.send((*request).dump());
             }
             reactor_.poll(100);
         }
@@ -168,7 +170,7 @@ void ScreenCaptureApiImpl::start()
     });
 }
 
-void ScreenCaptureApiImpl::stop() 
+void ScreenCaptureApiImpl::stop()
 {
     isStart_.store(false);
     for (auto &thread : threads_) {
