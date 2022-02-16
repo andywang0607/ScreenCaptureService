@@ -1,7 +1,7 @@
-#include <thread>
-#include <chrono>
-
 #include "src/ScreenCaptureServer.hpp"
+
+#include <chrono>
+#include <thread>
 
 int main()
 {

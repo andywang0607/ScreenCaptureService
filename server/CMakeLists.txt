@@ -13,7 +13,7 @@ add_executable(
 
 target_link_libraries(
   ScreenCaptureServer PUBLIC base64 messagehelper zmqpp-static nlohmann_json
-                             opencv)
+                             opencv spdlog)
 
 target_include_directories(
   ScreenCaptureServer

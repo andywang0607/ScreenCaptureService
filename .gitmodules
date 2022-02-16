@@ -8,3 +8,7 @@
 	path = thirdparty/libzmq
 	url = https://github.com/zeromq/libzmq.git
 	branch = v4.2.3
+[submodule "thirdparty/spdlog"]
+	path = thirdparty/spdlog
+	url = git@github.com:gabime/spdlog.git
+	branch = v1.9.2

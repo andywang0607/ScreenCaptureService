@@ -2,7 +2,6 @@
 #include "HandlerManager.hpp"
 
 #include <chrono>
-#include <iostream>
 #include <string>
 
 #include <base64.h>
@@ -11,7 +10,7 @@
 #include <zmqpp/reactor.hpp>
 #include <zmqpp/socket_options.hpp>
 #include <zmqpp/socket_types.hpp>
-
+#include <spdlog/spdlog.h>
 
 ScreenCaptureApi *ScreenCaptureApi::create(ScreenCaptureSpi &spi)
 {
@@ -32,7 +31,6 @@ ScreenCaptureApiImpl::ScreenCaptureApiImpl(ScreenCaptureSpi &spi)
         handleMessage(subscribeSocket_);
     });
 
-    std::cout << "ScreenCaptureServer cunstruct success \n";
 }
 
 ScreenCaptureApiImpl::~ScreenCaptureApiImpl()
@@ -58,8 +56,7 @@ int ScreenCaptureApiImpl::connect(const char *ip, int port)
     request.set("port", std::to_string(port));
     addSendQueue(request.getBody());
 
-    std::cout << " request message: " << request.toString() << "\n";
-
+    spdlog::info("[ScreenCaptureApiImpl] request message: {}", request.toString());
     return 0;
 }
 
@@ -74,7 +71,7 @@ int ScreenCaptureApiImpl::startQueryScreenImage()
     request.set("height", 1080);
     addSendQueue(request.getBody());
 
-    std::cout << " request message: " << request.toString() << "\n";
+    spdlog::info("[ScreenCaptureApiImpl] request message: {}", request.toString());
     return 0;
 }
 
@@ -87,7 +84,7 @@ int ScreenCaptureApiImpl::stopQueryScreenImage()
     request.set("action", "stopQueryScreenImage");
     addSendQueue(request.getBody());
 
-    std::cout << " request message: " << request.toString() << "\n";
+    spdlog::info("[ScreenCaptureApiImpl] request message: {}", request.toString());
     return 0;
 }
 
@@ -98,7 +95,7 @@ void ScreenCaptureApiImpl::disconnect()
     request.set("action", "disconnect");
     addSendQueue(request.getBody());
 
-    std::cout << " request message: " << request.toString() << "\n";
+    spdlog::info("[ScreenCaptureApiImpl] request message: {}", request.toString());
 
     stop();
     requestSocket_.close();
@@ -120,8 +117,6 @@ void ScreenCaptureApiImpl::handleMessage(zmqpp::socket &socket)
 
     MessageHelper msgReceive(receive);
     HandlerManager::handle(msgReceive, &spi_, this);
-
-    std::cout << "handleMessage finish \n";
 }
 
 void ScreenCaptureApiImpl::addSendQueue(nlohmann::json &msg)
@@ -155,7 +150,7 @@ void ScreenCaptureApiImpl::unsubSubscribeSocket(const std::string &topic)
 void ScreenCaptureApiImpl::start()
 {
     threads_.emplace_back([&]() {
-        std::cout << "poll thread start \n";
+        spdlog::info("[ScreenCaptureApiImpl] polling thread start");
         while (isStart_.load(std::memory_order_acquire)) {
             while (!sendQueue_.empty()) {
                 auto request = sendQueue_.try_pop();
@@ -166,7 +161,7 @@ void ScreenCaptureApiImpl::start()
             }
             reactor_.poll(100);
         }
-        std::cout << "poll thread end \n";
+        spdlog::info("[ScreenCaptureApiImpl] polling thread finish");
     });
 }
 

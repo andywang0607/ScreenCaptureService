@@ -2,11 +2,10 @@
 #include "MessageHelper.hpp"
 #include "ScreenCaptureApiImpl.h"
 
-
 bool QueryScreenImageResultHandler::handle(MessageHelper &receive, ScreenCaptureSpi *spi, ScreenCaptureApiImpl *api)
 {
     auto action = receive.get("action");
-    
+
     if (action == "startQueryScreenImage") {
         spi->onStartQueryScreenImageRspRtn(receive.get("message").c_str());
 

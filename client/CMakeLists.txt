@@ -18,6 +18,7 @@ target_link_libraries(
   md5
   zmqpp-static
   nlohmann_json
+  spdlog
   threadsafeQueue)
 
 target_include_directories(

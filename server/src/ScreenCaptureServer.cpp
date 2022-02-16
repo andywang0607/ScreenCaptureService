@@ -4,11 +4,13 @@
 #include "ServerConfig.hpp"
 
 #include <atomic>
+#include <exception>
 #include <iostream>
 #include <vector>
 
 #include <zmqpp/proxy.hpp>
 #include <zmqpp/zmqpp.hpp>
+#include <spdlog/spdlog.h>
 
 struct ScreenCaptureServer::impl
 {
@@ -27,13 +29,13 @@ struct ScreenCaptureServer::impl
     {
         isStart_.store(true, std::memory_order_release);
         serviceThread_.emplace_back([&]() {
-            std::cout << "start service Thread \n";
+            spdlog::info("[ScreenCaptureServer] start service Thread");
             while (isStart_.load(std::memory_order_acquire)) {
                 zmqpp::message request;
                 serviceSocket_.receive(request);
 
                 MessageHelper msgRequest(request);
-                std::cout << "request to string: " << msgRequest.toString() << "\n";
+                spdlog::info("[ScreenCaptureServer] request to string: {}", msgRequest.toString());
 
                 MessageHelper msgResponse;
 
@@ -42,7 +44,7 @@ struct ScreenCaptureServer::impl
                 zmqpp::message response = msgResponse.toMessage();
                 serviceSocket_.send(response);
             }
-            std::cout << "end service Thread \n";
+            spdlog::info("[ScreenCaptureServer] Service thread finish");
         });
     }
 
@@ -70,15 +72,21 @@ ScreenCaptureServer::ScreenCaptureServer(): pimpl_(std::make_unique<impl>())
     std::string myPort = std::to_string(ServerConfig::getInstance().get<int>("servicePort", -1));
     std::string serviceAddress = "tcp://" + myIp + ":" + myPort;
 
-    std::cout << "serviceAddress: " << serviceAddress << "\n";
+    spdlog::info("[ScreenCaptureServer] serviceAddress: {}", serviceAddress);
 
-    pimpl_->serviceSocket_.set(zmqpp::socket_option::heartbeat_interval, 120000);
-    pimpl_->serviceSocket_.set(zmqpp::socket_option::heartbeat_timeout, 240000);
-    pimpl_->serviceSocket_.bind(serviceAddress);
+    try {
+        pimpl_->serviceSocket_.set(zmqpp::socket_option::heartbeat_interval, 120000);
+        pimpl_->serviceSocket_.set(zmqpp::socket_option::heartbeat_timeout, 240000);
+        pimpl_->serviceSocket_.bind(serviceAddress);
+    } catch (const std::exception &e) {
+        spdlog::critical("[ScreenCaptureServer] exception: {}", e.what());
+    }
+
+    spdlog::info("[ScreenCaptureServer] serviceSocket bind success");
 
     Router::createRouteMap(pimpl_->context_);
 
-    std::cout << "ScreenCaptureServer cunstruct success \n";
+    spdlog::info("[ScreenCaptureServer] ScreenCaptureServer construct sucess");
 }
 
 ScreenCaptureServer::~ScreenCaptureServer()

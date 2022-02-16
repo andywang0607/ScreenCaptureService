@@ -8,6 +8,8 @@
 #include <memory>
 #include <unordered_map>
 
+#include <spdlog/spdlog.h>
+
 class HandlerManager
 {
 public:
@@ -25,6 +27,7 @@ public:
             return std::make_unique<SubscriptionHandler>()->handle(receive, spi, api);
         }
 
+        spdlog::error("[HandlerManager] unknown action: {}", action);
         return false;
     }
 };

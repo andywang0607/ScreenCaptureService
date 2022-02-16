@@ -10,6 +10,7 @@
 #include <zmqpp/proxy.hpp>
 #include <zmqpp/zmqpp.hpp>
 #include <base64.h>
+#include <spdlog/spdlog.h>
 
 struct QueryScreenImageHandler::impl
 {
@@ -112,5 +113,6 @@ bool QueryScreenImageHandler::handle(MessageHelper &request, MessageHelper &resp
         return true;
     }
 
+    spdlog::error("[ConnectHandler] unknown action: {}", action);
     return false;
 }
