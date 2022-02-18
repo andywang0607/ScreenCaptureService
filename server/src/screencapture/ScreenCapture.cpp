@@ -1,36 +1,33 @@
-#include <atlimage.h>
-
 #include "ScreenCapture.h"
-#include "opencv2/opencv.hpp"
+
+#include <chrono>
+
+#include <spdlog/spdlog.h>
 
 std::tuple<unsigned int, unsigned int> ScreenCapture::getCurrentScreenSize() const
 {
-    HDC hdc = GetDC(nullptr);
-    RECT rc;
-    GetClientRect(GetDesktopWindow(), &rc);
-
-    return std::make_tuple(abs(rc.right), abs(rc.bottom));
+    return std::make_tuple(screenWidth_, screenHeight_);
 }
 
 std::vector<unsigned char> ScreenCapture::captureScreenRect(unsigned int offsetX, unsigned int offsetY, unsigned int sizeX, unsigned int sizeY)
 {
-    HDC hdc = GetDC(nullptr);
-    RECT rc;
-    GetClientRect(GetDesktopWindow(), &rc);
-    int cx = rc.right;
-    int cy = rc.bottom;
+    std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+    
+    BitBlt(image_.GetDC(), offsetX, offsetY, screenWidth_, screenHeight_, hdc_, 0, 0, SRCCOPY);
+    
+    std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
-    CImage image;
-    image.Create(cx, -cy, 32);
+    bgra_.data = (uchar *)image_.GetBits();
+    auto success = cv::imencode(".jpg", bgra_, rgbVec_);
+    
+    std::chrono::steady_clock::time_point t3 = std::chrono::steady_clock::now();
 
-    BitBlt(image.GetDC(), offsetX, offsetY, sizeX, sizeY, hdc, 0, 0, SRCCOPY);
-    image.ReleaseDC();
-    ReleaseDC(0, hdc);
-
-    static cv::Mat bgra(sizeY, sizeX, CV_8UC4);
-    memcpy(bgra.data, image.GetBits(), sizeY * sizeX * 4);
-
-    std::vector<unsigned char> rgbVec;
-    auto success = cv::imencode(".jpg", bgra, rgbVec); 
-    return rgbVec;
+    spdlog::debug("[ScreenCapture] get screen image time: {} (ms)",
+                 std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count());
+    spdlog::debug("[ScreenCapture] cv::imencode time: {} (ms)",
+                 std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count());
+   if(success) {
+      return rgbVec_; 
+   }
+   return {};
 }

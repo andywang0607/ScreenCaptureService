@@ -67,7 +67,7 @@ int ScreenCaptureApiImpl::startQueryScreenImage()
     MessageHelper request;
 
     request.set("action", "startQueryScreenImage");
-    request.set("width", 1900);
+    request.set("width", 1920);
     request.set("height", 1080);
     addSendQueue(request.getBody());
 

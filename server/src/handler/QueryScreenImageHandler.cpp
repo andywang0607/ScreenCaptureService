@@ -6,6 +6,7 @@
 #include <vector>
 #include <atomic>
 #include <string>
+#include <chrono>
 
 #include <zmqpp/proxy.hpp>
 #include <zmqpp/zmqpp.hpp>
@@ -47,8 +48,20 @@ struct QueryScreenImageHandler::impl
             publishResponse.setTopic("screenImage");
 
             while (isPublishStart_) {
+                std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
                 auto imgData = screenCapture_.captureScreenRect(0, 0, width, height);
-                auto imgDataStr = base64_encode(imgData.data(), imgData.size());
+                if (imgData.empty()) {
+                    continue;
+                }
+                std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+                const auto &&imgDataStr = base64_encode(imgData.data(), imgData.size());
+                std::chrono::steady_clock::time_point t3 = std::chrono::steady_clock::now();
+
+                spdlog::debug("[QueryScreenImageHandler] captureScreenRect time: {} (ms)",
+                             std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count());
+
+                spdlog::debug("[QueryScreenImageHandler] base64_encode time: {} (ms)",
+                             std::chrono::duration_cast<std::chrono::milliseconds>(t3 - t2).count());
 
                 publishResponse.set("imgData", imgDataStr);
 
