@@ -6,13 +6,13 @@ bool QueryScreenImageResultHandler::handle(MessageHelper &receive, ScreenCapture
 {
     auto action = receive.get("action");
 
-    if (action == "startQueryScreenImage") {
-        spi->onStartQueryScreenImageRspRtn(receive.get("message").c_str());
+    if (action == "startQueryScreenStream") {
+        spi->onStartQueryScreenStreamRspRtn(receive.get("message").c_str());
 
         return true;
     }
-    if (action == "stopQueryScreenImage") {
-        spi->onStopQueryScreenImageRspRtn(receive.get("message").c_str());
+    if (action == "stopQueryScreenStream") {
+        spi->onStopQueryScreenStreamRspRtn(receive.get("message").c_str());
 
         return true;
     }

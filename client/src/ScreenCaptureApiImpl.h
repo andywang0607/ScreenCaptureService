@@ -21,8 +21,9 @@ public:
     ~ScreenCaptureApiImpl() override;
 
     int connect(const char *ip, int port) override;
-    int startQueryScreenImage(int targetWidth = -1, int targetHeight = -1) override;
-    int stopQueryScreenImage() override;
+    int queryScreenImage(int targetWidth = -1, int targetHeight = -1) override;
+    int startQueryScreenStream(int targetWidth = -1, int targetHeight = -1) override;
+    int stopQueryScreenStream() override;
     void disconnect() override;
 
     void connectSubscribeSocket(const std::string &address);

@@ -3,7 +3,7 @@
 
 #include "handler/ConnectResultHandler.h"
 #include "handler/QueryScreenImageResultHandler.h"
-#include "handler/SubscriptionHandler.h"
+#include "handler/ImageDataHandler.h"
 
 #include <memory>
 #include <unordered_map>
@@ -19,12 +19,14 @@ public:
 
         if (action == "connect") {
             return std::make_unique<ConnectResultHandler>()->handle(receive, spi, api);
-        } else if (action == "startQueryScreenImage") {
+        } else if (action == "startQueryScreenStream") {
             return std::make_unique<QueryScreenImageResultHandler>()->handle(receive, spi, api);
-        } else if (action == "stopQueryScreenImage") {
+        } else if (action == "stopQueryScreenStream") {
             return std::make_unique<QueryScreenImageResultHandler>()->handle(receive, spi, api);
+        } else if (action == "streamRtn") {
+            return std::make_unique<ImageDataHandler>()->handle(receive, spi, api);
         } else if (action == "imageRtn") {
-            return std::make_unique<SubscriptionHandler>()->handle(receive, spi, api);
+            return std::make_unique<ImageDataHandler>()->handle(receive, spi, api);
         }
 
         spdlog::error("[HandlerManager] unknown action: {}", action);

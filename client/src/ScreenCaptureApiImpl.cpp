@@ -60,13 +60,11 @@ int ScreenCaptureApiImpl::connect(const char *ip, int port)
     return 0;
 }
 
-int ScreenCaptureApiImpl::startQueryScreenImage(int targetWidth, int targetHeight)
+int ScreenCaptureApiImpl::queryScreenImage(int targetWidth, int targetHeight)
 {
-    subscribeSocket(topic_);
-
     MessageHelper request;
 
-    request.set("action", "startQueryScreenImage");
+    request.set("action", "queryScreenImage");
     request.set("targetWidth", targetWidth);
     request.set("targetHeight", targetHeight);
     addSendQueue(request.getBody());
@@ -75,13 +73,28 @@ int ScreenCaptureApiImpl::startQueryScreenImage(int targetWidth, int targetHeigh
     return 0;
 }
 
-int ScreenCaptureApiImpl::stopQueryScreenImage()
+int ScreenCaptureApiImpl::startQueryScreenStream(int targetWidth, int targetHeight)
+{
+    subscribeSocket(topic_);
+
+    MessageHelper request;
+
+    request.set("action", "startQueryScreenStream");
+    request.set("targetWidth", targetWidth);
+    request.set("targetHeight", targetHeight);
+    addSendQueue(request.getBody());
+
+    spdlog::info("[ScreenCaptureApiImpl] request message: {}", request.toString());
+    return 0;
+}
+
+int ScreenCaptureApiImpl::stopQueryScreenStream()
 {
     unsubSubscribeSocket(topic_);
 
     MessageHelper request;
 
-    request.set("action", "stopQueryScreenImage");
+    request.set("action", "stopQueryScreenStream");
     addSendQueue(request.getBody());
 
     spdlog::info("[ScreenCaptureApiImpl] request message: {}", request.toString());

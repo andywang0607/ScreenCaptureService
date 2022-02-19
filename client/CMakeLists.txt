@@ -8,8 +8,8 @@ add_library(
   src/handler/ConnectResultHandler.h
   src/handler/QueryScreenImageResultHandler.cpp
   src/handler/QueryScreenImageResultHandler.h
-  src/handler/SubscriptionHandler.cpp
-  src/handler/SubscriptionHandler.h)
+  src/handler/ImageDataHandler.cpp
+  src/handler/ImageDataHandler.h)
 
 target_link_libraries(
   screencaptureapi

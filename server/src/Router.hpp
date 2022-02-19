@@ -21,8 +21,9 @@ public:
         auto queryImageHandler = std::make_shared<QueryScreenImageHandler>(context);
 
         routeMap.emplace("connect", connectHandler);
-        routeMap.emplace("startQueryScreenImage", queryImageHandler);
-        routeMap.emplace("stopQueryScreenImage", queryImageHandler);
+        routeMap.emplace("queryScreenImage", queryImageHandler);
+        routeMap.emplace("startQueryScreenStream", queryImageHandler);
+        routeMap.emplace("stopQueryScreenStream", queryImageHandler);
     }
 
     static bool handle(MessageHelper &request, MessageHelper &response)

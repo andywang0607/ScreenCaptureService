@@ -42,7 +42,7 @@ struct QueryScreenImageHandler::impl
             MessageHelper publishResponse;
             publishResponse.set("imgWidth", targetWidth);
             publishResponse.set("imgHeight", targetHeight);
-            publishResponse.set("action", "imageRtn");
+            publishResponse.set("action", "streamRtn");
             publishResponse.setTopic("screenImage");
 
             while (isPublishStart_) {
@@ -108,7 +108,18 @@ bool QueryScreenImageHandler::handle(MessageHelper &request, MessageHelper &resp
     targetHeight = targetHeight == -1 ? height : targetHeight;
     targetWidth = targetWidth == -1 ? width : targetWidth;
 
-    if (action == "startQueryScreenImage") {
+    if (action == "queryScreenImage") {
+        auto imgData = pimpl_->screenCapture_.captureScreenRect(targetWidth, targetHeight);
+        const auto &&imgDataStr = base64_encode(imgData.data(), imgData.size());
+
+        response.set("action", "imageRtn");
+        response.set("imgWidth", targetWidth);
+        response.set("imgHeight", targetHeight);
+        response.set("imgData", imgDataStr);
+
+        return true;
+    }
+    if (action == "startQueryScreenStream") {
         pimpl_->subscribeClientNum_.fetch_add(1, std::memory_order_release);
 
         if (pimpl_->subscribeClientNum_.load(std::memory_order_acquire) > 1) {
@@ -119,12 +130,12 @@ bool QueryScreenImageHandler::handle(MessageHelper &request, MessageHelper &resp
         }
         return true;
     }
-    if (action == "stopQueryScreenImage") {
+    if (action == "stopQueryScreenStream") {
         pimpl_->subscribeClientNum_.fetch_sub(1, std::memory_order_release);
 
         if (pimpl_->subscribeClientNum_.load(std::memory_order_acquire) == 0) {
             pimpl_->stopPublish();
-            response.set("message", "stopQueryScreenImage sucess, publish thread stop");
+            response.set("message", "stopQueryScreenStream sucess, publish thread stop");
         } else {
             response.set("message", "There are another client still subscribe this topic");
         }
