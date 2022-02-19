@@ -21,7 +21,7 @@ struct ScreenCaptureApi
     SCREENCAPTUREAPI_EXPORT virtual ~ScreenCaptureApi(){};
 
     SCREENCAPTUREAPI_EXPORT virtual int connect(const char *ip, int port) = 0;
-    SCREENCAPTUREAPI_EXPORT virtual int startQueryScreenImage() = 0;
+    SCREENCAPTUREAPI_EXPORT virtual int startQueryScreenImage(int targetWidth = -1, int targetHeight = -1) = 0;
     SCREENCAPTUREAPI_EXPORT virtual int stopQueryScreenImage() = 0;
     SCREENCAPTUREAPI_EXPORT virtual void disconnect() = 0;
 };

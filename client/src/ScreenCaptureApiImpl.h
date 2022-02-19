@@ -21,7 +21,7 @@ public:
     ~ScreenCaptureApiImpl() override;
 
     int connect(const char *ip, int port) override;
-    int startQueryScreenImage() override;
+    int startQueryScreenImage(int targetWidth = -1, int targetHeight = -1) override;
     int stopQueryScreenImage() override;
     void disconnect() override;
 

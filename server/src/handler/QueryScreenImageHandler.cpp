@@ -35,21 +35,19 @@ struct QueryScreenImageHandler::impl
         stopPublish();
     }
 
-    void startPublish()
+    void startPublish(int targetWidth, int targetHeight)
     {
         isPublishStart_.store(true, std::memory_order_release);
-        publishThread_.emplace_back([this]() {
-            auto &&[width, height] = screenCapture_.getCurrentScreenSize();
-
+        publishThread_.emplace_back([this, targetWidth, targetHeight]() {
             MessageHelper publishResponse;
-            publishResponse.set("imgWidth", width);
-            publishResponse.set("imgHeight", height);
+            publishResponse.set("imgWidth", targetWidth);
+            publishResponse.set("imgHeight", targetHeight);
             publishResponse.set("action", "imageRtn");
             publishResponse.setTopic("screenImage");
 
             while (isPublishStart_) {
                 std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-                auto imgData = screenCapture_.captureScreenRect(0, 0, width, height);
+                auto imgData = screenCapture_.captureScreenRect(targetWidth, targetHeight);
                 if (imgData.empty()) {
                     continue;
                 }
@@ -103,13 +101,20 @@ bool QueryScreenImageHandler::handle(MessageHelper &request, MessageHelper &resp
     updateConnectToken(request, response);
 
     auto action = request.get("action");
+    int targetWidth = request.get<int>("targetWidth", -1);
+    int targetHeight = request.get<int>("targetHeight", -1);
+
+    auto &&[width, height] = pimpl_->screenCapture_.getCurrentScreenSize();
+    targetHeight = targetHeight == -1 ? height : targetHeight;
+    targetWidth = targetWidth == -1 ? width : targetWidth;
+
     if (action == "startQueryScreenImage") {
         pimpl_->subscribeClientNum_.fetch_add(1, std::memory_order_release);
 
         if (pimpl_->subscribeClientNum_.load(std::memory_order_acquire) > 1) {
             response.set("message", "publishThread already exist");
         } else {
-            pimpl_->startPublish();
+            pimpl_->startPublish(targetWidth, targetHeight);
             response.set("message", "start publishThread success");
         }
         return true;
@@ -121,11 +126,11 @@ bool QueryScreenImageHandler::handle(MessageHelper &request, MessageHelper &resp
             pimpl_->stopPublish();
             response.set("message", "stopQueryScreenImage sucess, publish thread stop");
         } else {
-            response.set("message", "stopQueryScreenImage sucess");
+            response.set("message", "There are another client still subscribe this topic");
         }
         return true;
     }
 
-    spdlog::error("[ConnectHandler] unknown action: {}", action);
+    spdlog::error("[QueryScreenImageHandler] unknown action: {}", action);
     return false;
 }

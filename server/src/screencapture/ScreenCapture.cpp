@@ -9,17 +9,18 @@ std::tuple<unsigned int, unsigned int> ScreenCapture::getCurrentScreenSize() con
     return std::make_tuple(screenWidth_, screenHeight_);
 }
 
-std::vector<unsigned char> ScreenCapture::captureScreenRect(unsigned int offsetX, unsigned int offsetY, unsigned int sizeX, unsigned int sizeY)
+std::vector<unsigned char> ScreenCapture::captureScreenRect(unsigned int targetWidth, unsigned int targetHeight)
 {
     std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-    
-    BitBlt(image_.GetDC(), offsetX, offsetY, screenWidth_, screenHeight_, hdc_, 0, 0, SRCCOPY);
-    
+
+    BitBlt(image_.GetDC(), 0, 0, screenWidth_, screenHeight_, hdc_, 0, 0, SRCCOPY);
+
     std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
 
     bgra_.data = (uchar *)image_.GetBits();
-    auto success = cv::imencode(".jpg", bgra_, rgbVec_);
-    
+    cv::resize(bgra_, bgraResize_, cv::Size(targetWidth, targetHeight), 0, 0, cv::INTER_LINEAR);
+    auto success = cv::imencode(".jpg", bgraResize_, rgbVec_);
+
     std::chrono::steady_clock::time_point t3 = std::chrono::steady_clock::now();
 
     spdlog::debug("[ScreenCapture] get screen image time: {} (ms)",

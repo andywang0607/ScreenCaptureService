@@ -60,15 +60,15 @@ int ScreenCaptureApiImpl::connect(const char *ip, int port)
     return 0;
 }
 
-int ScreenCaptureApiImpl::startQueryScreenImage()
+int ScreenCaptureApiImpl::startQueryScreenImage(int targetWidth, int targetHeight)
 {
     subscribeSocket(topic_);
 
     MessageHelper request;
 
     request.set("action", "startQueryScreenImage");
-    request.set("width", 1920);
-    request.set("height", 1080);
+    request.set("targetWidth", targetWidth);
+    request.set("targetHeight", targetHeight);
     addSendQueue(request.getBody());
 
     spdlog::info("[ScreenCaptureApiImpl] request message: {}", request.toString());

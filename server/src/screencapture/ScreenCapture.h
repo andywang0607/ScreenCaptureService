@@ -21,6 +21,7 @@ public:
         image_.Create(rc_.right, -rc_.bottom, 32);
 
         bgra_ = cv::Mat(screenHeight_, screenWidth_, CV_8UC4);
+        bgraResize_.reserve(bgra_.total());
         rgbVec_.reserve(bgra_.total() * 1024);
     }
 
@@ -32,7 +33,7 @@ public:
 
     std::tuple<unsigned int, unsigned int> getCurrentScreenSize() const;
 
-    std::vector<unsigned char> captureScreenRect(unsigned int offsetX, unsigned int offsetY, unsigned int sizeX, unsigned int sizeY);
+    std::vector<unsigned char> captureScreenRect(unsigned int targetWidth, unsigned int targetHeight);
 
 private:
     HDC hdc_;
@@ -44,6 +45,7 @@ private:
     CImage image_;
 
     cv::Mat bgra_;
+    cv::Mat bgraResize_;
     std::vector<unsigned char> rgbVec_;
 };
 #endif // __SCREENCAPTURE_H__
