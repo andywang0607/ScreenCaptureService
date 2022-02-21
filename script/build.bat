@@ -1,6 +1,5 @@
 REM usage build.bat <config>
 REM example build.bat Release
-REM current config: Release, RelWithDebInfo, MinSizeRel
 
 mkdir ..\%1
 cd ..\%1
